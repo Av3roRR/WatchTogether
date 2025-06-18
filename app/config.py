@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     DATABASE_DRIVER: str
     DATABASE_URL: str
     
+    SECRET_KEY: str
+    HASH_ALGO: str
+    
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()

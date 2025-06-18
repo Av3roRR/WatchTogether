@@ -14,3 +14,14 @@ class SRegistration(BaseModel):
     name: str | None
     surname: str | None
     age: int | None
+
+
+class SAuth(BaseModel):
+    email: EmailStr
+    password: SecretStr = Field(
+        json_schema_extra={
+            "title": "Password",
+            "description": "Password of the user",
+            "examples": ["123456"]
+        }
+    )

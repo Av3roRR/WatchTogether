@@ -1,11 +1,13 @@
-from app.users.schemas import SRegistration
+from app.users.schemas import SRegistration, SAuth
 from app.users.dao import UsersDAO
-from app.exceptions import UserAlreadyExistException
+from app.exceptions import (UserAlreadyExistException, UserDoesNotExistException)
+from app.users.models import Users
 
-from app.users.auth import get_password_hash
-from app.users.dependencies import check_registration_info
+from app.users.auth import get_password_hash, auth_user, create_access_token
+from app.users.dependencies import check_registration_info, get_current_user
 
-from fastapi import APIRouter
+
+from fastapi import APIRouter, Response, Depends
 
 router = APIRouter(
     prefix="/users",
@@ -35,3 +37,16 @@ async def registration(user_info: SRegistration):
     )
     
     return "Пользователь успешно создан"
+
+@router.post("/login")
+async def authentication(response: Response, auth_data: SAuth):
+    existing_user = await auth_user(auth_data)
+    
+    token_data = create_access_token({"sub": str(existing_user.id)})
+    response.set_cookie("watch_cookie", token_data, httponly=True)
+    
+    return {"access_token": token_data}
+
+@router.get('/me')
+async def get_yourself(current_user: Users = Depends(get_current_user)):
+    return current_user
